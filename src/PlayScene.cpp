@@ -23,12 +23,13 @@ void PlayScene::draw()
 		GUI_Function();
 	}
 
-	drawDisplayList();
-	SDL_SetRenderDrawColor(Renderer::Instance()->getRenderer(),0,0,0,0);
-
 	SDL_RenderDrawLineF(Renderer::Instance()->getRenderer(), m_trianglePos.x, m_trianglePos.y, m_trianglePos.x, m_trianglePos.y - m_rise);
 	SDL_RenderDrawLineF(Renderer::Instance()->getRenderer(), m_trianglePos.x, m_trianglePos.y, m_trianglePos.x + m_run, m_trianglePos.y);
 	SDL_RenderDrawLineF(Renderer::Instance()->getRenderer(), m_trianglePos.x, m_trianglePos.y - m_rise, m_trianglePos.x + m_run, m_trianglePos.y);
+
+	drawDisplayList();
+	SDL_SetRenderDrawColor(Renderer::Instance()->getRenderer(),0,0,0,0);
+
 }
 
 void PlayScene::update()
@@ -111,6 +112,13 @@ void PlayScene::start()
 	m_trianglePos.y = 450;
 	m_rise =300;
 	m_run = 400;
+
+	m_pLootbox = new Box();
+	m_pLootbox->getTransform()->position = glm::vec2(m_trianglePos.x, m_trianglePos.y - m_rise);
+	m_pLootbox->setWidth(50);
+	m_pLootbox->setHeight(54);
+	m_pLootbox->SetAngle(glm::degrees(glm::atan((float)m_rise, (float)m_run)));
+	addChild(m_pLootbox);
 
 	// Back Button
 	m_pBackButton = new Button("../Assets/textures/backButton.png", "backButton", BACK_BUTTON);

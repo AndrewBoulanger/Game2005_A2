@@ -7,6 +7,7 @@
 #include "Player.h"
 #include "Button.h"
 #include "Label.h"
+#include "Box.h"
 
 class PlayScene : public Scene
 {
@@ -31,6 +32,7 @@ private:
 	glm::vec2 m_trianglePos;
 	int m_run, m_rise;
 		
+	Box* m_pLootbox;
 
 	// UI Items
 	Button* m_pBackButton;

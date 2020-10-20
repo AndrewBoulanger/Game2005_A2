@@ -1,53 +1,51 @@
-#include "Target.h"
+#include "Box.h"
 #include "TextureManager.h"
 
 
-Target::Target()
+Box::Box()
 {
-	TextureManager::Instance()->load("../Assets/textures/Circle.png","circle");
+	TextureManager::Instance()->load("../Assets/textures/lootbox.png","lootbox");
 
-	const auto size = TextureManager::Instance()->getTextureSize("circle");
-	setWidth(size.x);
-	setHeight(size.y);
 	getTransform()->position = glm::vec2(100.0f, 100.0f);
 	getRigidBody()->velocity = glm::vec2(0, 0);
 	getRigidBody()->isColliding = false;
+	m_angle = 0.0f;
 
 	setType(TARGET);
 }
 
-Target::~Target()
+Box::~Box()
 = default;
 
-void Target::draw()
+void Box::draw()
 {
 	// alias for x and y
 	const auto x = getTransform()->position.x;
 	const auto y = getTransform()->position.y;
 
 	// draw the target
-	TextureManager::Instance()->draw("circle", x, y, getWidth(), getHeight(), 0, 255, true);
+	TextureManager::Instance()->draw("lootbox", x, y - (getHeight()*.75), getWidth(), getHeight(), m_angle, 255, false);
 }
 
-void Target::update()
+void Box::update()
 {
 	m_move();
 	m_checkBounds();
 }
 
-void Target::clean()
+void Box::clean()
 {
 }
 
-void Target::m_move()
+void Box::m_move()
 {
 	getTransform()->position = getTransform()->position + getRigidBody()->velocity * 5.0f;
 }
 
-void Target::m_checkBounds()
+void Box::m_checkBounds()
 {
 }
 
-void Target::m_reset()
+void Box::m_reset()
 {
 }
