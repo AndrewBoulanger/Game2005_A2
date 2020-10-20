@@ -17,7 +17,7 @@ PlayScene::~PlayScene()
 
 void PlayScene::draw()
 {
-	TextureManager::Instance()->draw("background", 0, 0, 0, 255, true);
+	TextureManager::Instance()->draw("background", -300, 0, 1500, 600, 0, 255, false);
 	if(EventManager::Instance().isIMGUIActive())
 	{
 		GUI_Function();
@@ -26,9 +26,9 @@ void PlayScene::draw()
 	drawDisplayList();
 	SDL_SetRenderDrawColor(Renderer::Instance()->getRenderer(),0,0,0,0);
 
-	SDL_RenderDrawLineF(Renderer::Instance()->getRenderer(), 100, 300, 100, 300 - rise);
-	SDL_RenderDrawLineF(Renderer::Instance()->getRenderer(), 100, 300, 100 + run, 300 );
-	SDL_RenderDrawLineF(Renderer::Instance()->getRenderer(), 100, 300 - rise, 100 + run, 300 );
+	SDL_RenderDrawLineF(Renderer::Instance()->getRenderer(), m_trianglePos.x, m_trianglePos.y, m_trianglePos.x, m_trianglePos.y - m_rise);
+	SDL_RenderDrawLineF(Renderer::Instance()->getRenderer(), m_trianglePos.x, m_trianglePos.y, m_trianglePos.x + m_run, m_trianglePos.y);
+	SDL_RenderDrawLineF(Renderer::Instance()->getRenderer(), m_trianglePos.x, m_trianglePos.y - m_rise, m_trianglePos.x + m_run, m_trianglePos.y);
 }
 
 void PlayScene::update()
@@ -107,11 +107,14 @@ void PlayScene::start()
 	// Set GUI Title
 	m_guiTitle = "Play Scene";
 	
-	rise = run = 100;
+	m_trianglePos.x = 100;
+	m_trianglePos.y = 450;
+	m_rise =300;
+	m_run = 400;
 
 	// Back Button
 	m_pBackButton = new Button("../Assets/textures/backButton.png", "backButton", BACK_BUTTON);
-	m_pBackButton->getTransform()->position = glm::vec2(300.0f, 400.0f);
+	m_pBackButton->getTransform()->position = glm::vec2(300.0f, 500.0f);
 	m_pBackButton->addEventListener(CLICK, [&]()-> void
 	{
 		m_pBackButton->setActive(false);
@@ -131,7 +134,7 @@ void PlayScene::start()
 
 	// Next Button
 	m_pNextButton = new Button("../Assets/textures/nextButton.png", "nextButton", NEXT_BUTTON);
-	m_pNextButton->getTransform()->position = glm::vec2(500.0f, 400.0f);
+	m_pNextButton->getTransform()->position = glm::vec2(500.0f, 500.0f);
 	m_pNextButton->addEventListener(CLICK, [&]()-> void
 	{
 		m_pNextButton->setActive(false);
@@ -152,7 +155,7 @@ void PlayScene::start()
 
 	/* Instructions Label */
 	m_pInstructionsLabel = new Label("Press the backtick (`) character to toggle Debug View", "Consolas");
-	m_pInstructionsLabel->getTransform()->position = glm::vec2(Config::SCREEN_WIDTH * 0.5f, 500.0f);
+	m_pInstructionsLabel->getTransform()->position = glm::vec2(Config::SCREEN_WIDTH * 0.5f, 550.0f);
 
 	addChild(m_pInstructionsLabel);
 }
@@ -175,13 +178,13 @@ void PlayScene::GUI_Function() const
 
 	ImGui::Separator();
 
-	static int height = 100;
+	static int height = 300;
 	if (ImGui::SliderInt("Height", &height, 1, 500)) {
-		(int)rise = height;
+		(int)m_rise = height;
 	}
-	static int length = 100;
+	static int length = 400;
 	if (ImGui::SliderInt("Length", &length, 1, 500)) {
-		(int)run = length;
+		(int)m_run = length;
 	}
 	
 	

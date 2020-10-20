@@ -27,7 +27,9 @@ private:
 	
 	glm::vec2 m_mousePosition;
 
-	int run, rise;
+	//slope variables
+	glm::vec2 m_trianglePos;
+	int m_run, m_rise;
 		
 
 	// UI Items
