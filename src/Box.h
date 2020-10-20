@@ -4,6 +4,8 @@
 
 #include "DisplayObject.h"
 
+#define METERS_PER_PIXEL (1.0f/100.0f)
+
 class Box final : public DisplayObject {
 public:
 	Box();
@@ -23,12 +25,33 @@ public:
 		m_angle = angle;
 	}
 
+	void reset(float x, float y);
+
+	glm::vec2 getDirection();
+	float getFriction();
+	float getGravity();
+	bool IsActive();
+
+	void setDiretion(glm::vec2 dir);
+	void setFriction(float val);
+	void setGravity(float val);
+	void toggleActive();
+	void setActive(bool flag);
+
+
 private:
 	void m_move();
 	void m_checkBounds();
 	void m_reset();
 
 	float m_angle;
+
+	//movement variables
+	glm::vec2 m_direction;
+	float m_friction, m_gravity;
+
+	bool m_active;
+
 };
 
 

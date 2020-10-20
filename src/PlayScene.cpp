@@ -29,11 +29,19 @@ void PlayScene::draw()
 
 	drawDisplayList();
 	SDL_SetRenderDrawColor(Renderer::Instance()->getRenderer(),0,0,0,0);
-
+	
 }
 
 void PlayScene::update()
 {
+	if (m_pLootbox->getTransform()->position.x >= m_trianglePos.x + m_run)
+	{
+		m_pLootbox->getRigidBody()->velocity.y = 0;
+		m_pLootbox->getRigidBody()->acceleration.y = 0;
+		m_pLootbox->getRigidBody()->acceleration.x = -m_pLootbox->getFriction();
+		m_pLootbox->SetAngle(0.0f);
+	
+	}
 	updateDisplayList();
 }
 
@@ -117,7 +125,6 @@ void PlayScene::start()
 	m_pLootbox->getTransform()->position = glm::vec2(m_trianglePos.x, m_trianglePos.y - m_rise);
 	m_pLootbox->setWidth(50);
 	m_pLootbox->setHeight(54);
-	m_pLootbox->SetAngle(glm::degrees(glm::atan((float)m_rise, (float)m_run)));
 	addChild(m_pLootbox);
 	
 	// Back Button
@@ -179,20 +186,30 @@ void PlayScene::GUI_Function() const
 	
 	ImGui::Begin("Your Window Title Goes Here", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar);
 
-	if(ImGui::Button("My Button"))
+	if(ImGui::Button("activate"))
 	{
-		std::cout << "My Button Pressed" << std::endl;
+		if (!m_pLootbox->IsActive())
+		{
+			m_pLootbox->toggleActive();
+			m_pLootbox->setDiretion(glm::normalize(glm::vec2(m_run, m_rise)));
+		}
+		else
+		{
+			m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
+		}
 	}
 
 	ImGui::Separator();
 
-	static int height = 300;
-	if (ImGui::SliderInt("Height", &height, 1, 500)) {
-		(int)m_rise = height;
+	static float height = 300;
+	if (ImGui::SliderFloat("Height", &height, 1, 500)) {
+		(float)m_rise = height;
+		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
 	}
-	static int length = 400;
-	if (ImGui::SliderInt("Length", &length, 1, 500)) {
-		(int)m_run = length;
+	static float length = 400;
+	if (ImGui::SliderFloat("Length", &length, 1, 500)) {
+		(float)m_run = length;
+		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
 	}
 	
 	

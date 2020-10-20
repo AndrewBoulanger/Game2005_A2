@@ -30,7 +30,7 @@ private:
 
 	//slope variables
 	glm::vec2 m_trianglePos;
-	int m_run, m_rise;
+	float m_run, m_rise;
 		
 	Box* m_pLootbox;
 

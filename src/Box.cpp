@@ -1,17 +1,26 @@
 #include "Box.h"
 #include "TextureManager.h"
+#include "Game.h"
+#include "Util.h"
 
-
+#define DELTA_TIME 1.0f / 60.0f
 Box::Box()
 {
 	TextureManager::Instance()->load("../Assets/textures/lootbox.png","lootbox");
 
-	getTransform()->position = glm::vec2(100.0f, 100.0f);
+	getTransform()->position = glm::vec2(200.0f, 150.0f);
 	getRigidBody()->velocity = glm::vec2(0, 0);
 	getRigidBody()->isColliding = false;
-	m_angle = 0.0f;
+	getRigidBody()->mass = 12.8;
+	m_gravity = 9.8f;
 
-	setType(TARGET);
+	m_active = false;
+
+
+	m_friction = 4.2;
+
+	setDiretion(glm::vec2(0.8f, 0.6f));
+	m_angle = 0;
 }
 
 Box::~Box()
@@ -29,8 +38,8 @@ void Box::draw()
 
 void Box::update()
 {
-	m_move();
-	m_checkBounds();
+	if(m_active)
+		m_move();
 }
 
 void Box::clean()
@@ -39,7 +48,19 @@ void Box::clean()
 
 void Box::m_move()
 {
-	getTransform()->position = getTransform()->position + getRigidBody()->velocity * 5.0f;
+	glm::vec2 accelToAdd = getRigidBody()->acceleration * DELTA_TIME;
+	getRigidBody()->velocity += accelToAdd;
+
+	if (Util::magnitude(getRigidBody()->velocity) < Util::magnitude(accelToAdd))
+	{
+		//Stop: no force and velocity is negligable, so acceleration and velocity should be nothing
+		m_active = false;
+		
+	}
+
+	// Update Position here
+	getTransform()->position += getRigidBody()->velocity * DELTA_TIME;
+
 }
 
 void Box::m_checkBounds()
@@ -48,4 +69,69 @@ void Box::m_checkBounds()
 
 void Box::m_reset()
 {
+}
+
+
+void Box::reset(float x, float y)
+{
+	getTransform()->position.x = x;
+	getTransform()->position.y = y;
+
+	m_angle = 0;
+	m_active = false;
+	getRigidBody()->acceleration *= 0;
+	getRigidBody()->velocity *= 0;
+}
+
+glm::vec2 Box::getDirection()
+{
+	return m_direction;
+}
+
+float Box::getFriction()
+{
+	return m_friction;
+}
+
+float Box::getGravity()
+{
+	return m_gravity;
+}
+
+bool Box::IsActive()
+{
+	return m_active;
+}
+
+//takes the rise and run of the slope
+void Box::setDiretion(glm::vec2 dir)
+{
+	m_direction = dir;
+
+	m_angle = glm::degrees(glm::atan(dir.y, dir.x));
+
+	getRigidBody()->acceleration = dir * glm::degrees(glm::sin(m_angle)) * -m_gravity;
+	if (getRigidBody()->acceleration.x < 0)
+		getRigidBody()->acceleration *= -1;
+}
+
+
+void Box::setFriction(float val)
+{
+	m_friction = val * METERS_PER_PIXEL;
+}
+
+void Box::setGravity(float val)
+{
+	m_gravity = val * METERS_PER_PIXEL;
+}
+
+void Box::toggleActive()
+{
+	m_active = !m_active;
+}
+
+void Box::setActive(bool flag)
+{
+	m_active = flag;
 }
