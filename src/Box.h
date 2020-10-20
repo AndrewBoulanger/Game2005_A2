@@ -4,7 +4,7 @@
 
 #include "DisplayObject.h"
 
-#define METERS_PER_PIXEL (1.0f/100.0f)
+#define METERS_PER_PIXEL 1.0f/100.0f
 
 class Box final : public DisplayObject {
 public:

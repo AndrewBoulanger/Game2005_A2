@@ -188,14 +188,14 @@ void PlayScene::GUI_Function() const
 
 	if(ImGui::Button("activate"))
 	{
-		if (!m_pLootbox->IsActive())
+		if (m_pLootbox->IsActive() || m_pLootbox->getTransform()->position.x > m_trianglePos.x)
 		{
-			m_pLootbox->toggleActive();
-			m_pLootbox->setDiretion(glm::normalize(glm::vec2(m_run, m_rise)));
+			m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
 		}
 		else
 		{
-			m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
+			m_pLootbox->toggleActive();
+			m_pLootbox->setDiretion(glm::normalize(glm::vec2(m_run, m_rise)));
 		}
 	}
 
