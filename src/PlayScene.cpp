@@ -119,7 +119,7 @@ void PlayScene::start()
 	m_pLootbox->setHeight(54);
 	m_pLootbox->SetAngle(glm::degrees(glm::atan((float)m_rise, (float)m_run)));
 	addChild(m_pLootbox);
-
+	
 	// Back Button
 	m_pBackButton = new Button("../Assets/textures/backButton.png", "backButton", BACK_BUTTON);
 	m_pBackButton->getTransform()->position = glm::vec2(300.0f, 500.0f);
