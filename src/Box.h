@@ -38,6 +38,7 @@ public:
 	void setGravity(float val);
 	void toggleActive();
 	void setActive(bool flag);
+	glm::vec2 getNetForce();
 
 
 private:

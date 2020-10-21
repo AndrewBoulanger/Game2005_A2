@@ -41,6 +41,11 @@ private:
 	Button* m_pNextButton;
 	Label* m_pInstructionsLabel;
 	Label* m_pTempLabel;
+	static bool m_viewForce;
+	static bool m_viewVelocity;
+
+	// Misc Functions
+	void DrawArrow(glm::vec2 Start, glm::vec2 Dir, float Length, glm::vec4 colour);
 };
 
 #endif /* defined (__PLAY_SCENE__) */

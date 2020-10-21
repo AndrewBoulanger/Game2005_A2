@@ -140,3 +140,8 @@ void Box::setActive(bool flag)
 {
 	m_active = flag;
 }
+
+glm::vec2 Box::getNetForce()
+{
+	return glm::vec2(getRigidBody()->acceleration.x * getRigidBody()->mass, getRigidBody()->acceleration.y * getRigidBody()->mass);
+}

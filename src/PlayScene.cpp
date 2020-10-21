@@ -6,6 +6,7 @@
 #include "imgui.h"
 #include "imgui_sdl.h"
 #include "Renderer.h"
+#include "Util.h"
 
 #define PPM 20
 
@@ -16,6 +17,9 @@ PlayScene::PlayScene()
 
 PlayScene::~PlayScene()
 = default;
+
+bool PlayScene::m_viewForce = false;
+bool PlayScene::m_viewVelocity = false;
 
 void PlayScene::draw()
 {
@@ -30,6 +34,25 @@ void PlayScene::draw()
 	SDL_RenderDrawLineF(Renderer::Instance()->getRenderer(), m_trianglePos.x, m_trianglePos.y - m_rise, m_trianglePos.x + m_run, m_trianglePos.y);
 
 	drawDisplayList();
+
+	// Drawing Force and Veloctiy Arrows
+	if (m_viewForce)
+	{
+		glm::vec2 Offset = glm::vec2(m_pLootbox->getWidth() / 2, -m_pLootbox->getHeight() / 4);
+		glm::vec2 ForceDir = (Util::magnitude(m_pLootbox->getNetForce()) > 0 ? m_pLootbox->getNetForce() : glm::vec2(0.0f, 0.0f));
+		glm::vec4 Red = glm::vec4((1.0f), (0.0f), (0.0f), (1.0f));
+
+		DrawArrow(m_pLootbox->getTransform()->position + Offset, ForceDir, Util::magnitude(m_pLootbox->getNetForce()) / 200.0f, Red);
+	}
+
+	if (m_viewVelocity)
+	{
+		glm::vec2 Offset = glm::vec2(m_pLootbox->getWidth() / 2, -m_pLootbox->getHeight() / 4);
+		glm::vec4 Blue = glm::vec4((0.0f), (0.0f), (1.0f), (1.0f));
+
+		DrawArrow(m_pLootbox->getTransform()->position + Offset, m_pLootbox->getRigidBody()->velocity, Util::magnitude(m_pLootbox->getRigidBody()->velocity / 200.0f), Blue);
+	}
+
 	SDL_SetRenderDrawColor(Renderer::Instance()->getRenderer(),0,0,0,0);
 	
 }
@@ -200,7 +223,7 @@ void PlayScene::GUI_Function() const
 	
 	ImGui::Begin("Your Window Title Goes Here", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar);
 
-	if(ImGui::Button("activate"))
+	if(ImGui::Button((m_pLootbox->IsActive() || m_pLootbox->getTransform()->position.x > m_trianglePos.x ? "Reset Simulation" : "Activate")))
 	{
 		if (m_pLootbox->IsActive() || m_pLootbox->getTransform()->position.x > m_trianglePos.x)
 		{
@@ -213,28 +236,62 @@ void PlayScene::GUI_Function() const
 		}
 	}
 
+	static float height = 3.0f;
+	static float length = 4.0f;
+	static float CoefficientFriction = 0.42f;
+
+	if (ImGui::Button("Reset To Default"))
+	{
+		// Reset to Default values
+		height = 3.0f;
+		length = 4.0f;
+		CoefficientFriction = 0.42f;
+
+		(float)m_rise = height * m_PPM;
+		(float)m_run = length * m_PPM;
+		m_pLootbox->setFriction(CoefficientFriction);
+
+		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
+	}
+
 	ImGui::Separator();
 
-	static float height = 3.0f;
+	
 	if (ImGui::SliderFloat("Height (m)", &height, 0.01f, 15.0f)) {
 		(float)m_rise = height * m_PPM;
 		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
 	}
-	static float length = 4.0f;
+	
 	if (ImGui::SliderFloat("Length (m)", &length, 0.01f, 20.0f)) {
 		(float)m_run = length * m_PPM;
 		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
 	}
-	static float CoefficientFriction = 0.42f;
+	
 	if (ImGui::SliderFloat("Coefficient of Friction", &CoefficientFriction, 0.0f, 3.0f)) {
 		m_pLootbox->setFriction(CoefficientFriction);
 		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
 	}
 	
+	ImGui::Checkbox("Show Net Force", &m_viewForce);
+	ImGui::Checkbox("Show Velocity", &m_viewVelocity);
+
 	ImGui::End();
 
 	// Don't Remove this
 	ImGui::Render();
 	ImGuiSDL::Render(ImGui::GetDrawData());
 	ImGui::StyleColorsDark();
+}
+
+void PlayScene::DrawArrow(glm::vec2 Start, glm::vec2 Dir, float Length, glm::vec4 colour)
+{
+	glm::vec2 EndPos = Start + Dir * Length;
+
+	Util::DrawLine(Start, EndPos, colour);
+
+	// Draw Arrow Head
+	glm::vec2 rightArrow = (Util::normalize(glm::vec2(Dir.y, -Dir.x) - Dir)) * 10.0f;
+	glm::vec2 leftArrow = (Util::normalize(glm::vec2(-Dir.y, Dir.x) - Dir)) * 10.0f;
+	Util::DrawLine(EndPos, EndPos + rightArrow, colour);
+	Util::DrawLine(EndPos, EndPos + leftArrow, colour);
 }
