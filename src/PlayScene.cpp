@@ -6,6 +6,9 @@
 #include "imgui.h"
 #include "imgui_sdl.h"
 #include "Renderer.h"
+#include "Util.h"
+
+#define PPM 30
 
 PlayScene::PlayScene()
 {
@@ -14,6 +17,9 @@ PlayScene::PlayScene()
 
 PlayScene::~PlayScene()
 = default;
+
+bool PlayScene::m_viewForce = false;
+bool PlayScene::m_viewVelocity = false;
 
 void PlayScene::draw()
 {
@@ -28,6 +34,25 @@ void PlayScene::draw()
 	SDL_RenderDrawLineF(Renderer::Instance()->getRenderer(), m_trianglePos.x, m_trianglePos.y - m_rise, m_trianglePos.x + m_run, m_trianglePos.y);
 
 	drawDisplayList();
+
+	// Drawing Force and Veloctiy Arrows
+	if (m_viewForce)
+	{
+		glm::vec2 Offset = glm::vec2(m_pLootbox->getWidth() / 2, -m_pLootbox->getHeight() / 4);
+		glm::vec2 ForceDir = (Util::magnitude(m_pLootbox->getNetForce()) > 0 ? m_pLootbox->getNetForce() : glm::vec2(0.0f, 0.0f));
+		glm::vec4 Red = glm::vec4((1.0f), (0.0f), (0.0f), (1.0f));
+
+		DrawArrow(m_pLootbox->getTransform()->position + Offset, ForceDir, m_pLootbox->getRigidBody()->mass / 1000.0f, Red);
+	}
+
+	if (m_viewVelocity)
+	{
+		glm::vec2 Offset = glm::vec2(m_pLootbox->getWidth() / 2, -m_pLootbox->getHeight() / 4);
+		glm::vec4 Blue = glm::vec4((0.0f), (0.0f), (1.0f), (1.0f));
+
+		DrawArrow(m_pLootbox->getTransform()->position + Offset, m_pLootbox->getRigidBody()->velocity, Util::magnitude(m_pLootbox->getRigidBody()->velocity / 200.0f), Blue);
+	}
+
 	SDL_SetRenderDrawColor(Renderer::Instance()->getRenderer(),0,0,0,0);
 	
 }
@@ -38,11 +63,15 @@ void PlayScene::update()
 	{
 		m_pLootbox->getRigidBody()->velocity.y = 0;
 		m_pLootbox->getRigidBody()->acceleration.y = 0;
-		m_pLootbox->getRigidBody()->acceleration.x = -m_pLootbox->getFriction();
+		m_pLootbox->getRigidBody()->acceleration.x = -(m_pLootbox->getFriction() * m_pLootbox->getGravity());
 		m_pLootbox->SetAngle(0.0f);
 	
 	}
 	updateDisplayList();
+
+	float m_deltaXbot = -(m_trianglePos.x + m_run - m_pLootbox->getTransform()->position.x) / m_PPM;
+
+	m_pTempLabel->setText("Distance from Bottom of Ramp = " + std::to_string(m_deltaXbot) + "(m). Net Force = " + std::to_string(Util::magnitude(m_pLootbox->getNetForce() / m_PPM)) + "(N)");
 }
 
 void PlayScene::clean()
@@ -116,24 +145,31 @@ void PlayScene::start()
 	// Set GUI Title
 	m_guiTitle = "Play Scene";
 	
+	// Pixels Per Meter
+	m_PPM = PPM;
+
 	m_trianglePos.x = 100;
 	m_trianglePos.y = 450;
-	m_rise =300;
-	m_run = 400;
+	m_rise = 3.0f * m_PPM;
+	m_run = 4.0f * m_PPM;
 
 	m_pLootbox = new Box();
 	m_pLootbox->getTransform()->position = glm::vec2(m_trianglePos.x, m_trianglePos.y - m_rise);
 	m_pLootbox->setWidth(50);
 	m_pLootbox->setHeight(54);
+	m_pLootbox->setPixelsPerMeter(m_PPM);
+	m_pLootbox->setGravity(9.8f);
 	addChild(m_pLootbox);
 	
+	m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
+
 	// Back Button
 	m_pBackButton = new Button("../Assets/textures/backButton.png", "backButton", BACK_BUTTON);
 	m_pBackButton->getTransform()->position = glm::vec2(300.0f, 500.0f);
 	m_pBackButton->addEventListener(CLICK, [&]()-> void
 	{
 		m_pBackButton->setActive(false);
-		TheGame::Instance()->changeSceneState(START_SCENE);
+		// TheGame::Instance()->changeSceneState(START_SCENE);
 	});
 
 	m_pBackButton->addEventListener(MOUSE_OVER, [&]()->void
@@ -153,7 +189,7 @@ void PlayScene::start()
 	m_pNextButton->addEventListener(CLICK, [&]()-> void
 	{
 		m_pNextButton->setActive(false);
-		TheGame::Instance()->changeSceneState(END_SCENE);
+		// TheGame::Instance()->changeSceneState(END_SCENE);
 	});
 
 	m_pNextButton->addEventListener(MOUSE_OVER, [&]()->void
@@ -171,8 +207,11 @@ void PlayScene::start()
 	/* Instructions Label */
 	m_pInstructionsLabel = new Label("Press the backtick (`) character to toggle Debug View", "Consolas");
 	m_pInstructionsLabel->getTransform()->position = glm::vec2(Config::SCREEN_WIDTH * 0.5f, 550.0f);
-
 	addChild(m_pInstructionsLabel);
+
+	m_pTempLabel = new Label("X from Bot Ramp: ", "Consolas");
+	m_pTempLabel->getTransform()->position = glm::vec2(Config::SCREEN_WIDTH * 0.5f, 20.0f);
+	addChild(m_pTempLabel);
 }
 
 void PlayScene::GUI_Function() const
@@ -186,7 +225,7 @@ void PlayScene::GUI_Function() const
 	
 	ImGui::Begin("Your Window Title Goes Here", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar);
 
-	if(ImGui::Button("activate"))
+	if(ImGui::Button((m_pLootbox->IsActive() || m_pLootbox->getTransform()->position.x > m_trianglePos.x ? "Reset Simulation" : "Activate")))
 	{
 		if (m_pLootbox->IsActive() || m_pLootbox->getTransform()->position.x > m_trianglePos.x)
 		{
@@ -199,24 +238,70 @@ void PlayScene::GUI_Function() const
 		}
 	}
 
+	static float height = 3.0f;
+	static float length = 4.0f;
+	static float CoefficientFriction = 0.42f;
+	static float mass = 12.8f;
+
+	if (ImGui::Button("Reset To Default"))
+	{
+		// Reset to Default values
+		height = 3.0f;
+		length = 4.0f;
+		CoefficientFriction = 0.42f;
+		mass = 12.8f;
+
+		(float)m_rise = height * m_PPM;
+		(float)m_run = length * m_PPM;
+		m_pLootbox->setFriction(CoefficientFriction);
+		m_pLootbox->getRigidBody()->mass = mass;
+
+		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
+	}
+
 	ImGui::Separator();
 
-	static float height = 300;
-	if (ImGui::SliderFloat("Height", &height, 1, 500)) {
-		(float)m_rise = height;
-		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
-	}
-	static float length = 400;
-	if (ImGui::SliderFloat("Length", &length, 1, 500)) {
-		(float)m_run = length;
+	
+	if (ImGui::SliderFloat("Height (m)", &height, 0.01f, 15.0f)) {
+		(float)m_rise = height * m_PPM;
 		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
 	}
 	
+	if (ImGui::SliderFloat("Length (m)", &length, 0.01f, 20.0f)) {
+		(float)m_run = length * m_PPM;
+		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
+	}
 	
+	if (ImGui::SliderFloat("Coefficient of Friction", &CoefficientFriction, 0.0f, 3.0f)) {
+		m_pLootbox->setFriction(CoefficientFriction);
+		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
+	}
+
+	if (ImGui::SliderFloat("Mass of Lootbox (kg)", &mass, 0.1f, 200.0f)) {
+		m_pLootbox->getRigidBody()->mass = mass;
+		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
+	}
+	
+	ImGui::Checkbox("Show Net Force", &m_viewForce);
+	ImGui::Checkbox("Show Velocity", &m_viewVelocity);
+
 	ImGui::End();
 
 	// Don't Remove this
 	ImGui::Render();
 	ImGuiSDL::Render(ImGui::GetDrawData());
 	ImGui::StyleColorsDark();
+}
+
+void PlayScene::DrawArrow(glm::vec2 Start, glm::vec2 Dir, float Length, glm::vec4 colour)
+{
+	glm::vec2 EndPos = Start + Dir * Length;
+
+	Util::DrawLine(Start, EndPos, colour);
+
+	// Draw Arrow Head
+	glm::vec2 rightArrow = (Util::normalize(glm::vec2(Dir.y, -Dir.x) - Dir)) * 10.0f;
+	glm::vec2 leftArrow = (Util::normalize(glm::vec2(-Dir.y, Dir.x) - Dir)) * 10.0f;
+	Util::DrawLine(EndPos, EndPos + rightArrow, colour);
+	Util::DrawLine(EndPos, EndPos + leftArrow, colour);
 }

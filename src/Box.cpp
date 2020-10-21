@@ -17,7 +17,7 @@ Box::Box()
 	m_active = false;
 
 
-	m_friction = 42.0f ;
+	m_friction = 0.42f ;
 
 	setDiretion(glm::vec2(0.8f, 0.6f));
 	m_angle = 0;
@@ -103,6 +103,11 @@ bool Box::IsActive()
 	return m_active;
 }
 
+void Box::setPixelsPerMeter(float PPM)
+{
+	m_PPM = PPM;
+}
+
 //takes the rise and run of the slope
 void Box::setDiretion(glm::vec2 dir)
 {
@@ -110,7 +115,7 @@ void Box::setDiretion(glm::vec2 dir)
 
 	m_angle = glm::degrees(glm::atan(dir.y, dir.x));
 
-	getRigidBody()->acceleration = dir * glm::degrees(glm::sin(m_angle)) * -m_gravity;
+	getRigidBody()->acceleration = dir * glm::sin(glm::radians(m_angle)) * -m_gravity;
 	if (getRigidBody()->acceleration.x < 0)
 		getRigidBody()->acceleration *= -1;
 }
@@ -118,12 +123,12 @@ void Box::setDiretion(glm::vec2 dir)
 
 void Box::setFriction(float val)
 {
-	m_friction = val * METERS_PER_PIXEL;
+	m_friction = val;
 }
 
 void Box::setGravity(float val)
 {
-	m_gravity = val * METERS_PER_PIXEL;
+	m_gravity = val * m_PPM;
 }
 
 void Box::toggleActive()
@@ -134,4 +139,9 @@ void Box::toggleActive()
 void Box::setActive(bool flag)
 {
 	m_active = flag;
+}
+
+glm::vec2 Box::getNetForce()
+{
+	return glm::vec2(getRigidBody()->acceleration.x * getRigidBody()->mass, getRigidBody()->acceleration.y * getRigidBody()->mass);
 }
