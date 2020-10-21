@@ -132,6 +132,8 @@ void PlayScene::start()
 	m_pLootbox->getTransform()->position = glm::vec2(m_trianglePos.x, m_trianglePos.y - m_rise);
 	m_pLootbox->setWidth(50);
 	m_pLootbox->setHeight(54);
+	m_pLootbox->setPixelsPerMeter(m_PPM);
+	m_pLootbox->setGravity(9.8f);
 	addChild(m_pLootbox);
 	
 	// Back Button

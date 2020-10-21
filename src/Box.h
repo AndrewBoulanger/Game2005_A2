@@ -32,6 +32,7 @@ public:
 	float getGravity();
 	bool IsActive();
 
+	void setPixelsPerMeter(float PPM);
 	void setDiretion(glm::vec2 dir);
 	void setFriction(float val);
 	void setGravity(float val);
@@ -48,7 +49,7 @@ private:
 
 	//movement variables
 	glm::vec2 m_direction;
-	float m_friction, m_gravity;
+	float m_friction, m_gravity, m_PPM;
 
 	bool m_active;
 

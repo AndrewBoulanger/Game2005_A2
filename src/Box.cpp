@@ -103,6 +103,11 @@ bool Box::IsActive()
 	return m_active;
 }
 
+void Box::setPixelsPerMeter(float PPM)
+{
+	m_PPM = PPM;
+}
+
 //takes the rise and run of the slope
 void Box::setDiretion(glm::vec2 dir)
 {
@@ -118,12 +123,12 @@ void Box::setDiretion(glm::vec2 dir)
 
 void Box::setFriction(float val)
 {
-	m_friction = val * METERS_PER_PIXEL;
+	m_friction = val;
 }
 
 void Box::setGravity(float val)
 {
-	m_gravity = val * METERS_PER_PIXEL;
+	m_gravity = val * m_PPM;
 }
 
 void Box::toggleActive()
