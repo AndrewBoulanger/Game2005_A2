@@ -12,12 +12,12 @@ Box::Box()
 	getRigidBody()->velocity = glm::vec2(0, 0);
 	getRigidBody()->isColliding = false;
 	getRigidBody()->mass = 12.8;
-	m_gravity = 9.8f;
+	m_gravity = 9.8f ;
 
 	m_active = false;
 
 
-	m_friction = 4.2;
+	m_friction = 42.0f ;
 
 	setDiretion(glm::vec2(0.8f, 0.6f));
 	m_angle = 0;
