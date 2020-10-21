@@ -7,6 +7,8 @@
 #include "imgui_sdl.h"
 #include "Renderer.h"
 
+#define PPM 20
+
 PlayScene::PlayScene()
 {
 	PlayScene::start();
@@ -44,7 +46,7 @@ void PlayScene::update()
 	}
 	updateDisplayList();
 
-	float m_deltaXbot = -(m_trianglePos.x + m_run - m_pLootbox->getTransform()->position.x);
+	float m_deltaXbot = -(m_trianglePos.x + m_run - m_pLootbox->getTransform()->position.x) / m_PPM;
 
 	m_pInstructionsLabel->setText("XbotRamp = " + std::to_string(m_deltaXbot));
 }
@@ -120,13 +122,13 @@ void PlayScene::start()
 	// Set GUI Title
 	m_guiTitle = "Play Scene";
 	
+	// Pixels Per Meter
+	m_PPM = PPM;
+
 	m_trianglePos.x = 100;
 	m_trianglePos.y = 450;
-	m_rise =300;
-	m_run = 400;
-
-	// Pixels Per Meter
-	m_PPM = 100.0f;
+	m_rise = 3.0f * m_PPM;
+	m_run = 4.0f * m_PPM;
 
 	m_pLootbox = new Box();
 	m_pLootbox->getTransform()->position = glm::vec2(m_trianglePos.x, m_trianglePos.y - m_rise);
@@ -142,7 +144,7 @@ void PlayScene::start()
 	m_pBackButton->addEventListener(CLICK, [&]()-> void
 	{
 		m_pBackButton->setActive(false);
-		TheGame::Instance()->changeSceneState(START_SCENE);
+		// TheGame::Instance()->changeSceneState(START_SCENE);
 	});
 
 	m_pBackButton->addEventListener(MOUSE_OVER, [&]()->void
@@ -162,7 +164,7 @@ void PlayScene::start()
 	m_pNextButton->addEventListener(CLICK, [&]()-> void
 	{
 		m_pNextButton->setActive(false);
-		TheGame::Instance()->changeSceneState(END_SCENE);
+		// TheGame::Instance()->changeSceneState(END_SCENE);
 	});
 
 	m_pNextButton->addEventListener(MOUSE_OVER, [&]()->void
@@ -214,16 +216,20 @@ void PlayScene::GUI_Function() const
 	ImGui::Separator();
 
 	static float height = 3.0f;
-	if (ImGui::SliderFloat("Height", &height, 0.01f, 5.0f)) {
+	if (ImGui::SliderFloat("Height (m)", &height, 0.01f, 15.0f)) {
 		(float)m_rise = height * m_PPM;
 		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
 	}
 	static float length = 4.0f;
-	if (ImGui::SliderFloat("Length", &length, 0.01f, 5.0f)) {
+	if (ImGui::SliderFloat("Length (m)", &length, 0.01f, 20.0f)) {
 		(float)m_run = length * m_PPM;
 		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
 	}
-	
+	static float CoefficientFriction = 0.42f;
+	if (ImGui::SliderFloat("Coefficient of Friction", &CoefficientFriction, 0.0f, 3.0f)) {
+		m_pLootbox->setFriction(CoefficientFriction);
+		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
+	}
 	
 	ImGui::End();
 
