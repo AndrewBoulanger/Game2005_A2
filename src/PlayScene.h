@@ -31,6 +31,8 @@ private:
 	//slope variables
 	glm::vec2 m_trianglePos;
 	float m_run, m_rise;
+
+	float m_PPM;
 		
 	Box* m_pLootbox;
 
@@ -38,6 +40,12 @@ private:
 	Button* m_pBackButton;
 	Button* m_pNextButton;
 	Label* m_pInstructionsLabel;
+	Label* m_pTempLabel;
+	static bool m_viewForce;
+	static bool m_viewVelocity;
+
+	// Misc Functions
+	void DrawArrow(glm::vec2 Start, glm::vec2 Dir, float Length, glm::vec4 colour);
 };
 
 #endif /* defined (__PLAY_SCENE__) */

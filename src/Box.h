@@ -4,7 +4,7 @@
 
 #include "DisplayObject.h"
 
-#define METERS_PER_PIXEL (1.0f/100.0f)
+// #define METERS_PER_PIXEL 1.0f/100.0f
 
 class Box final : public DisplayObject {
 public:
@@ -32,11 +32,13 @@ public:
 	float getGravity();
 	bool IsActive();
 
+	void setPixelsPerMeter(float PPM);
 	void setDiretion(glm::vec2 dir);
 	void setFriction(float val);
 	void setGravity(float val);
 	void toggleActive();
 	void setActive(bool flag);
+	glm::vec2 getNetForce();
 
 
 private:
@@ -48,7 +50,7 @@ private:
 
 	//movement variables
 	glm::vec2 m_direction;
-	float m_friction, m_gravity;
+	float m_friction, m_gravity, m_PPM;
 
 	bool m_active;
 
