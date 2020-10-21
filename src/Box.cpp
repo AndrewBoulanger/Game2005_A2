@@ -17,7 +17,7 @@ Box::Box()
 	m_active = false;
 
 
-	m_friction = 42.0f ;
+	m_friction = 0.42f ;
 
 	setDiretion(glm::vec2(0.8f, 0.6f));
 	m_angle = 0;
@@ -110,7 +110,7 @@ void Box::setDiretion(glm::vec2 dir)
 
 	m_angle = glm::degrees(glm::atan(dir.y, dir.x));
 
-	getRigidBody()->acceleration = dir * glm::degrees(glm::sin(m_angle)) * -m_gravity;
+	getRigidBody()->acceleration = dir * glm::sin(glm::radians(m_angle)) * -m_gravity;
 	if (getRigidBody()->acceleration.x < 0)
 		getRigidBody()->acceleration *= -1;
 }

@@ -38,11 +38,15 @@ void PlayScene::update()
 	{
 		m_pLootbox->getRigidBody()->velocity.y = 0;
 		m_pLootbox->getRigidBody()->acceleration.y = 0;
-		m_pLootbox->getRigidBody()->acceleration.x = -m_pLootbox->getFriction();
+		m_pLootbox->getRigidBody()->acceleration.x = -(m_pLootbox->getFriction() * m_pLootbox->getGravity());
 		m_pLootbox->SetAngle(0.0f);
 	
 	}
 	updateDisplayList();
+
+	float m_deltaXbot = -(m_trianglePos.x + m_run - m_pLootbox->getTransform()->position.x);
+
+	m_pInstructionsLabel->setText("XbotRamp = " + std::to_string(m_deltaXbot));
 }
 
 void PlayScene::clean()
@@ -121,6 +125,9 @@ void PlayScene::start()
 	m_rise =300;
 	m_run = 400;
 
+	// Pixels Per Meter
+	m_PPM = 100.0f;
+
 	m_pLootbox = new Box();
 	m_pLootbox->getTransform()->position = glm::vec2(m_trianglePos.x, m_trianglePos.y - m_rise);
 	m_pLootbox->setWidth(50);
@@ -171,8 +178,11 @@ void PlayScene::start()
 	/* Instructions Label */
 	m_pInstructionsLabel = new Label("Press the backtick (`) character to toggle Debug View", "Consolas");
 	m_pInstructionsLabel->getTransform()->position = glm::vec2(Config::SCREEN_WIDTH * 0.5f, 550.0f);
-
 	addChild(m_pInstructionsLabel);
+
+	m_pTempLabel = new Label("X from Bot Ramp: ", "Consolas");
+	m_pTempLabel->getTransform()->position = glm::vec2(Config::SCREEN_WIDTH * 0.5f, 20.0f);
+	addChild(m_pTempLabel);
 }
 
 void PlayScene::GUI_Function() const
@@ -201,14 +211,14 @@ void PlayScene::GUI_Function() const
 
 	ImGui::Separator();
 
-	static float height = 300;
-	if (ImGui::SliderFloat("Height", &height, 1, 500)) {
-		(float)m_rise = height;
+	static float height = 3.0f;
+	if (ImGui::SliderFloat("Height", &height, 0.01f, 5.0f)) {
+		(float)m_rise = height * m_PPM;
 		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
 	}
-	static float length = 400;
-	if (ImGui::SliderFloat("Length", &length, 1, 500)) {
-		(float)m_run = length;
+	static float length = 4.0f;
+	if (ImGui::SliderFloat("Length", &length, 0.01f, 5.0f)) {
+		(float)m_run = length * m_PPM;
 		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
 	}
 	

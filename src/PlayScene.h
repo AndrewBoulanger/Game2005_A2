@@ -31,6 +31,8 @@ private:
 	//slope variables
 	glm::vec2 m_trianglePos;
 	float m_run, m_rise;
+
+	float m_PPM;
 		
 	Box* m_pLootbox;
 
@@ -38,6 +40,7 @@ private:
 	Button* m_pBackButton;
 	Button* m_pNextButton;
 	Label* m_pInstructionsLabel;
+	Label* m_pTempLabel;
 };
 
 #endif /* defined (__PLAY_SCENE__) */
