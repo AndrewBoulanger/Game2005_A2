@@ -42,7 +42,7 @@ void PlayScene::draw()
 		glm::vec2 ForceDir = (Util::magnitude(m_pLootbox->getNetForce()) > 0 ? m_pLootbox->getNetForce() : glm::vec2(0.0f, 0.0f));
 		glm::vec4 Red = glm::vec4((1.0f), (0.0f), (0.0f), (1.0f));
 
-		DrawArrow(m_pLootbox->getTransform()->position + Offset, ForceDir, Util::magnitude(m_pLootbox->getNetForce()) / 200.0f, Red);
+		DrawArrow(m_pLootbox->getTransform()->position + Offset, ForceDir, m_pLootbox->getRigidBody()->mass / 400.0f, Red);
 	}
 
 	if (m_viewVelocity)
@@ -239,6 +239,7 @@ void PlayScene::GUI_Function() const
 	static float height = 3.0f;
 	static float length = 4.0f;
 	static float CoefficientFriction = 0.42f;
+	static float mass = 12.8f;
 
 	if (ImGui::Button("Reset To Default"))
 	{
@@ -246,6 +247,7 @@ void PlayScene::GUI_Function() const
 		height = 3.0f;
 		length = 4.0f;
 		CoefficientFriction = 0.42f;
+		mass = 12.8f;
 
 		(float)m_rise = height * m_PPM;
 		(float)m_run = length * m_PPM;
@@ -269,6 +271,11 @@ void PlayScene::GUI_Function() const
 	
 	if (ImGui::SliderFloat("Coefficient of Friction", &CoefficientFriction, 0.0f, 3.0f)) {
 		m_pLootbox->setFriction(CoefficientFriction);
+		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
+	}
+
+	if (ImGui::SliderFloat("Mass of Lootbox (kg)", &mass, 0.1f, 200.0f)) {
+		m_pLootbox->getRigidBody()->mass = mass;
 		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
 	}
 	
