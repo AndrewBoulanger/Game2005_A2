@@ -8,7 +8,7 @@
 #include "Renderer.h"
 #include "Util.h"
 
-#define PPM 20
+#define PPM 30
 
 PlayScene::PlayScene()
 {
@@ -42,7 +42,7 @@ void PlayScene::draw()
 		glm::vec2 ForceDir = (Util::magnitude(m_pLootbox->getNetForce()) > 0 ? m_pLootbox->getNetForce() : glm::vec2(0.0f, 0.0f));
 		glm::vec4 Red = glm::vec4((1.0f), (0.0f), (0.0f), (1.0f));
 
-		DrawArrow(m_pLootbox->getTransform()->position + Offset, ForceDir, m_pLootbox->getRigidBody()->mass / 400.0f, Red);
+		DrawArrow(m_pLootbox->getTransform()->position + Offset, ForceDir, m_pLootbox->getRigidBody()->mass / 1000.0f, Red);
 	}
 
 	if (m_viewVelocity)
@@ -71,7 +71,7 @@ void PlayScene::update()
 
 	float m_deltaXbot = -(m_trianglePos.x + m_run - m_pLootbox->getTransform()->position.x) / m_PPM;
 
-	m_pInstructionsLabel->setText("XbotRamp = " + std::to_string(m_deltaXbot));
+	m_pTempLabel->setText("Distance from Bottom of Ramp = " + std::to_string(m_deltaXbot) + "(m). Net Force = " + std::to_string(Util::magnitude(m_pLootbox->getNetForce() / m_PPM)) + "(N)");
 }
 
 void PlayScene::clean()
@@ -161,6 +161,8 @@ void PlayScene::start()
 	m_pLootbox->setGravity(9.8f);
 	addChild(m_pLootbox);
 	
+	m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
+
 	// Back Button
 	m_pBackButton = new Button("../Assets/textures/backButton.png", "backButton", BACK_BUTTON);
 	m_pBackButton->getTransform()->position = glm::vec2(300.0f, 500.0f);
@@ -252,6 +254,7 @@ void PlayScene::GUI_Function() const
 		(float)m_rise = height * m_PPM;
 		(float)m_run = length * m_PPM;
 		m_pLootbox->setFriction(CoefficientFriction);
+		m_pLootbox->getRigidBody()->mass = mass;
 
 		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
 	}
