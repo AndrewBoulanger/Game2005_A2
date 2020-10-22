@@ -63,9 +63,9 @@ void PlayScene::update()
 	{
 		m_pLootbox->getRigidBody()->velocity.y = 0;
 		m_pLootbox->getRigidBody()->acceleration.y = 0;
+		m_pLootbox->getTransform()->position.y = m_trianglePos.y;
 		m_pLootbox->getRigidBody()->acceleration.x = -(m_pLootbox->getFriction() * m_pLootbox->getGravity());
 		m_pLootbox->SetAngle(0.0f);
-	
 	}
 	updateDisplayList();
 
@@ -171,6 +171,7 @@ void PlayScene::start()
 	{
 		m_pBackButton->setActive(false);
 		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
+		m_maxVelocity = 0;
 	});
 
 	m_pBackButton->addEventListener(MOUSE_OVER, [&]()->void
@@ -212,6 +213,8 @@ void PlayScene::start()
 	m_pTempLabel = new Label("X from Bot Ramp: ", "Consolas");
 	m_pTempLabel->getTransform()->position = glm::vec2(Config::SCREEN_WIDTH * 0.5f, 20.0f);
 	addChild(m_pTempLabel);
+
+	m_maxVelocity = 0;
 }
 
 void PlayScene::GUI_Function() const
@@ -267,24 +270,44 @@ void PlayScene::GUI_Function() const
 		(float)m_rise = height * m_PPM;
 		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
 	}
+
+	ImGui::SameLine(350.0F, -1);
+	ImGui::Text("Angle of depression:%f degrees",  -(glm::degrees(glm::atan(m_rise,m_run))));
 	
 	if (ImGui::SliderFloat("Length (m)", &length, 0.01f, 20.0f)) {
 		(float)m_run = length * m_PPM;
 		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
 	}
+
+	ImGui::SameLine(350.0F, 1);
+	ImGui::Text("Total X displacement: %fm", (m_pLootbox->getTransform()->position.x - m_trianglePos.x) /m_PPM);
 	
-	if (ImGui::SliderFloat("Coefficient of Friction", &CoefficientFriction, 0.0f, 3.0f)) {
+	if (ImGui::SliderFloat("Co. of Friction", &CoefficientFriction, 0.0f, 3.0f)) {
 		m_pLootbox->setFriction(CoefficientFriction);
 		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
 	}
 
-	if (ImGui::SliderFloat("Mass of Lootbox (kg)", &mass, 0.1f, 200.0f)) {
+	ImGui::SameLine(350.0F, -1);
+	ImGui::Text("Distance from slope: %fm", (m_pLootbox->getTransform()->position.x - m_run - m_trianglePos.x)/m_PPM);
+
+	if (ImGui::SliderFloat("Mass (kg)", &mass, 0.1f, 200.0f)) {
 		m_pLootbox->getRigidBody()->mass = mass;
 		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
 	}
+
+	ImGui::SameLine(350.0F, -1);
+	ImGui::Text("Net Force:            %fN", (Util::magnitude(m_pLootbox->getNetForce() / m_PPM)));
 	
 	ImGui::Checkbox("Show Net Force", &m_viewForce);
+
+	ImGui::SameLine(350.0F, -1);
+	ImGui::Text("Net Acceleration:     %fm/s^2", (Util::magnitude(m_pLootbox->getRigidBody()->acceleration / m_PPM)));
+
 	ImGui::Checkbox("Show Velocity", &m_viewVelocity);
+
+	ImGui::SameLine(350.0F, -1);
+	ImGui::Text("Max Speed:            %fm/s", m_maxVelocity);
+
 
 	ImGui::End();
 
@@ -299,12 +322,14 @@ bool PlayScene::StartSim()
 		if (m_pLootbox->IsActive() || m_pLootbox->getTransform()->position.x > m_trianglePos.x)
 		{
 			m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
+			m_maxVelocity = 0;
 			return true;
 		}
 		else
 		{
 			m_pLootbox->toggleActive();
 			m_pLootbox->setDiretion(glm::normalize(glm::vec2(m_run, m_rise)));
+			m_maxVelocity = (Util::magnitude(glm::vec2(m_run, m_rise) / m_PPM) * Util::magnitude(m_pLootbox->getRigidBody()->acceleration / m_PPM));
 			return false;
 		}
 }

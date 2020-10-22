@@ -40,6 +40,7 @@ public:
 	void setActive(bool flag);
 	glm::vec2 getNetForce();
 
+	float GetMaxVelocity();
 
 private:
 	void m_move();
@@ -53,7 +54,6 @@ private:
 	float m_friction, m_gravity, m_PPM;
 
 	bool m_active;
-
 };
 
 
