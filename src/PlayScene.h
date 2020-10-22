@@ -24,6 +24,7 @@ public:
 private:
 	// IMGUI Function
 	void GUI_Function() const;
+	bool StartSim();
 	std::string m_guiTitle;
 	
 	glm::vec2 m_mousePosition;

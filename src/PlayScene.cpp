@@ -72,6 +72,7 @@ void PlayScene::update()
 	float m_deltaXbot = -(m_trianglePos.x + m_run - m_pLootbox->getTransform()->position.x) / m_PPM;
 
 	m_pTempLabel->setText("Distance from Bottom of Ramp = " + std::to_string(m_deltaXbot) + "(m). Net Force = " + std::to_string(Util::magnitude(m_pLootbox->getNetForce() / m_PPM)) + "(N)");
+
 }
 
 void PlayScene::clean()
@@ -164,12 +165,12 @@ void PlayScene::start()
 	m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
 
 	// Back Button
-	m_pBackButton = new Button("../Assets/textures/backButton.png", "backButton", BACK_BUTTON);
+	m_pBackButton = new Button("../Assets/textures/restartButton.png", "Reset", RESTART_BUTTON);
 	m_pBackButton->getTransform()->position = glm::vec2(300.0f, 500.0f);
 	m_pBackButton->addEventListener(CLICK, [&]()-> void
 	{
 		m_pBackButton->setActive(false);
-		// TheGame::Instance()->changeSceneState(START_SCENE);
+		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
 	});
 
 	m_pBackButton->addEventListener(MOUSE_OVER, [&]()->void
@@ -184,12 +185,11 @@ void PlayScene::start()
 	addChild(m_pBackButton);
 
 	// Next Button
-	m_pNextButton = new Button("../Assets/textures/nextButton.png", "nextButton", NEXT_BUTTON);
+	m_pNextButton = new Button("../Assets/textures/startButton.png", "activate", START_BUTTON);
 	m_pNextButton->getTransform()->position = glm::vec2(500.0f, 500.0f);
 	m_pNextButton->addEventListener(CLICK, [&]()-> void
 	{
-		m_pNextButton->setActive(false);
-		// TheGame::Instance()->changeSceneState(END_SCENE);
+		StartSim();
 	});
 
 	m_pNextButton->addEventListener(MOUSE_OVER, [&]()->void
@@ -223,7 +223,7 @@ void PlayScene::GUI_Function() const
 	// See examples by uncommenting the following - also look at imgui_demo.cpp in the IMGUI filter
 	//ImGui::ShowDemoWindow();
 	
-	ImGui::Begin("Your Window Title Goes Here", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar);
+	ImGui::Begin("Physics simulation", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar);
 
 	if(ImGui::Button((m_pLootbox->IsActive() || m_pLootbox->getTransform()->position.x > m_trianglePos.x ? "Reset Simulation" : "Activate")))
 	{
@@ -257,6 +257,7 @@ void PlayScene::GUI_Function() const
 		m_pLootbox->getRigidBody()->mass = mass;
 
 		m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
+		
 	}
 
 	ImGui::Separator();
@@ -292,6 +293,22 @@ void PlayScene::GUI_Function() const
 	ImGuiSDL::Render(ImGui::GetDrawData());
 	ImGui::StyleColorsDark();
 }
+
+bool PlayScene::StartSim()
+{
+		if (m_pLootbox->IsActive() || m_pLootbox->getTransform()->position.x > m_trianglePos.x)
+		{
+			m_pLootbox->reset(m_trianglePos.x, m_trianglePos.y - m_rise);
+			return true;
+		}
+		else
+		{
+			m_pLootbox->toggleActive();
+			m_pLootbox->setDiretion(glm::normalize(glm::vec2(m_run, m_rise)));
+			return false;
+		}
+}
+
 
 void PlayScene::DrawArrow(glm::vec2 Start, glm::vec2 Dir, float Length, glm::vec4 colour)
 {
