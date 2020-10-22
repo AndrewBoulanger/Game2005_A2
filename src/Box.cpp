@@ -53,9 +53,7 @@ void Box::m_move()
 
 	if (Util::magnitude(getRigidBody()->velocity) < Util::magnitude(accelToAdd))
 	{
-		//Stop: no force and velocity is negligable, so acceleration and velocity should be nothing
-		m_active = false;
-		
+		m_active = false;	
 	}
 
 	// Update Position here

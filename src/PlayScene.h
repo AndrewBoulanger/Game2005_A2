@@ -24,6 +24,7 @@ public:
 private:
 	// IMGUI Function
 	void GUI_Function() const;
+	bool StartSim();
 	std::string m_guiTitle;
 	
 	glm::vec2 m_mousePosition;
@@ -41,6 +42,7 @@ private:
 	Button* m_pNextButton;
 	Label* m_pInstructionsLabel;
 	Label* m_pTempLabel;
+	float m_maxVelocity;	//used for speed label
 	static bool m_viewForce;
 	static bool m_viewVelocity;
 

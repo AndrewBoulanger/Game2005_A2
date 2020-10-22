@@ -48,19 +48,23 @@ void StartScene::start()
 {
 	TextureManager::Instance()->load("../Assets/textures/background.jpg", "background");
 
-	const SDL_Color blue = { 0, 0, 255, 255 };
-	m_pStartLabel = new Label("START SCENE", "Consolas", 80, blue, glm::vec2(400.0f, 40.0f));
+	const SDL_Color orange = { 255, 75, 0, 255 };
+	m_pStartLabel = new Label("GAME2005 Assignment 1 ", "Consolas", 60, orange, glm::vec2(Config::SCREEN_WIDTH >> 1, 40.0f));
 	m_pStartLabel->setParent(this);
 	addChild(m_pStartLabel);
 
-	m_pInstructionsLabel = new Label("Press 1 to Play", "Consolas", 40, blue, glm::vec2(400.0f, 120.0f));
+	m_pNameLabel1 = new Label("Andrew Boulanger - 101 292 574", "Consolas", 32, orange, glm::vec2(Config::SCREEN_WIDTH >> 1, 110.0f));
+	m_pNameLabel1->setParent(this);
+	addChild(m_pNameLabel1);
+
+	m_pNameLabel2 = new Label("Robert Palermo - 101 277 078", "Consolas", 32, orange, glm::vec2(Config::SCREEN_WIDTH >> 1, 170.0f));
+	m_pNameLabel2->setParent(this);
+	addChild(m_pNameLabel2);
+
+	m_pInstructionsLabel = new Label("press start button to Play", "Consolas", 40, orange, glm::vec2(Config::SCREEN_WIDTH >> 1, 500.0f));
 	m_pInstructionsLabel->setParent(this);
 	addChild(m_pInstructionsLabel);
 
-
-	m_pShip = new Ship();
-	m_pShip->getTransform()->position = glm::vec2(400.0f, 300.0f); 
-	addChild(m_pShip); 
 
 	// Start Button
 	m_pStartButton = new Button();
