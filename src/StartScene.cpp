@@ -49,7 +49,7 @@ void StartScene::start()
 	TextureManager::Instance()->load("../Assets/textures/background.jpg", "background");
 
 	const SDL_Color orange = { 255, 75, 0, 255 };
-	m_pStartLabel = new Label("GAME2005 Assignment 1 ", "Consolas", 60, orange, glm::vec2(Config::SCREEN_WIDTH >> 1, 40.0f));
+	m_pStartLabel = new Label("GAME2005 Assignment 2 ", "Consolas", 60, orange, glm::vec2(Config::SCREEN_WIDTH >> 1, 40.0f));
 	m_pStartLabel->setParent(this);
 	addChild(m_pStartLabel);
 
