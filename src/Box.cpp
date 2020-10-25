@@ -54,8 +54,9 @@ void Box::m_move()
 	if (Util::magnitude(getRigidBody()->velocity) < Util::magnitude(accelToAdd))
 	{
 		m_active = false;	
+		getTransform()->position += getRigidBody()->velocity - accelToAdd ;
 	}
-
+	
 	// Update Position here
 	getTransform()->position += getRigidBody()->velocity * DELTA_TIME;
 

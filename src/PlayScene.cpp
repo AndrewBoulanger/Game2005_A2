@@ -61,9 +61,15 @@ void PlayScene::update()
 {
 	if (m_pLootbox->getTransform()->position.x >= m_trianglePos.x + m_run)
 	{
+		m_pLootbox->getRigidBody()->velocity.x = Util::magnitude(m_pLootbox->getRigidBody()->velocity);
 		m_pLootbox->getRigidBody()->velocity.y = 0;
 		m_pLootbox->getRigidBody()->acceleration.y = 0;
-		m_pLootbox->getTransform()->position.y = m_trianglePos.y;
+		if (m_pLootbox->getTransform()->position.y > m_trianglePos.y)
+		{
+			m_pLootbox->getTransform()->position.x -= m_pLootbox->getTransform()->position.y - m_trianglePos.y;
+			m_pLootbox->getTransform()->position.y = m_trianglePos.y;
+
+		}
 		m_pLootbox->getRigidBody()->acceleration.x = -(m_pLootbox->getFriction() * m_pLootbox->getGravity());
 		m_pLootbox->SetAngle(0.0f);
 	}
