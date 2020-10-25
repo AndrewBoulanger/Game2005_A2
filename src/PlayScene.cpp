@@ -278,7 +278,7 @@ void PlayScene::GUI_Function() const
 	}
 
 	ImGui::SameLine(350.0F, -1);
-	ImGui::Text("Angle of depression:%f degrees",  -(glm::degrees(glm::atan(m_rise,m_run))));
+	ImGui::Text("Angle of depression:  %f degrees",  -(glm::degrees(glm::atan(m_rise,m_run))));
 	
 	if (ImGui::SliderFloat("Length (m)", &length, 0.01f, 20.0f)) {
 		(float)m_run = length * m_PPM;
@@ -286,7 +286,7 @@ void PlayScene::GUI_Function() const
 	}
 
 	ImGui::SameLine(350.0F, 1);
-	ImGui::Text("Total X displacement: %fm", (m_pLootbox->getTransform()->position.x - m_trianglePos.x) /m_PPM);
+	ImGui::Text("Total X displacement:  %fm", (m_pLootbox->getTransform()->position.x - m_trianglePos.x) /m_PPM);
 	
 	if (ImGui::SliderFloat("Co. of Friction", &CoefficientFriction, 0.0f, 3.0f)) {
 		m_pLootbox->setFriction(CoefficientFriction);
@@ -294,7 +294,7 @@ void PlayScene::GUI_Function() const
 	}
 
 	ImGui::SameLine(350.0F, -1);
-	ImGui::Text("Distance from slope: %fm", (m_pLootbox->getTransform()->position.x - m_run - m_trianglePos.x)/m_PPM);
+	ImGui::Text("Distance from slope:   %fm", (m_pLootbox->getTransform()->position.x - m_run - m_trianglePos.x)/m_PPM);
 
 	if (ImGui::SliderFloat("Mass (kg)", &mass, 0.1f, 200.0f)) {
 		m_pLootbox->getRigidBody()->mass = mass;
@@ -302,12 +302,12 @@ void PlayScene::GUI_Function() const
 	}
 
 	ImGui::SameLine(350.0F, -1);
-	ImGui::Text("Net Force:            %fN", (Util::magnitude(m_pLootbox->getNetForce() / m_PPM)));
+	ImGui::Text("Net Force:              %fN", (Util::magnitude(m_pLootbox->getNetForce() / m_PPM)));
 	
 	ImGui::Checkbox("Show Net Force", &m_viewForce);
 
 	ImGui::SameLine(350.0F, -1);
-	ImGui::Text("Net Acceleration:     %fm/s^2", (Util::magnitude(m_pLootbox->getRigidBody()->acceleration / m_PPM)));
+	ImGui::Text("Acceleration (magnitude):%fm/s^2", (Util::magnitude(m_pLootbox->getRigidBody()->acceleration / m_PPM)));
 
 	ImGui::Checkbox("Show Velocity", &m_viewVelocity);
 
